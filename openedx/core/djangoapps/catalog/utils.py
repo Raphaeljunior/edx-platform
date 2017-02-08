@@ -85,6 +85,19 @@ def get_program_type(name):
     return next(program_type for program_type in get_program_types() if program_type['name'] == name)
 
 
+def get_program_type(name):
+    """
+    Retrieve the program type with the given name from the catalog service.
+
+    Arguments:
+        name (string): Name of the program type to retrieve.
+
+    Returns:
+        dict, representing the program type.
+    """
+    return next(program_type for program_type in get_program_types() if program_type['name'] == name)
+
+
 def get_program_types():
     """Retrieve all program types from the catalog service.
 
