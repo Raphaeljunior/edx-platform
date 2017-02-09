@@ -605,7 +605,7 @@ USAGE_ID_PATTERN = r'(?P<usage_id>(?:i4x://?[^/]+/[^/]+/[^/]+/[^@]+(?:@[^/]+)?)|
 
 USERNAME_PATTERN = r'(?P<username>[\w.@+-]+)'
 
-PROGRAM_ID_PATTERN = r'(?P<program_id>[0-9a-f-]{36})'
+PROGRAM_ID_PATTERN = r'(?P<marketing_slug>[A-Za-z0-9_-]+)'
 
 ############################## EVENT TRACKING #################################
 LMS_SEGMENT_KEY = None

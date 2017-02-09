@@ -675,13 +675,11 @@ def course_about(request, course_id):
 
 @ensure_csrf_cookie
 @cache_if_anonymous()
-def program_detail(request, program_id):
+def program_detail(request, marketing_slug):
     """
-    Display the program's detail page.
-
-    Assumes the program_id is in a valid format.
+    Display the program marketing page.
     """
-    program = get_program_with_type_and_instructors(program_id)
+    program = get_program_with_type_and_instructors(marketing_slug)
 
     if not program:
         raise Http404

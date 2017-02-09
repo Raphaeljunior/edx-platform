@@ -37,13 +37,12 @@ class TestGetPrograms(CatalogIntegrationMixin, TestCase):
         super(TestGetPrograms, self).setUp()
 
         self.uuid = str(uuid.uuid4())
-        self.marketing_slug = 'foo_bar_program'
         self.type = 'FooBar'
         self.catalog_integration = self.create_catalog_integration(cache_ttl=1)
 
         UserFactory(username=self.catalog_integration.service_username)
 
-    def assert_contract(self, call_args, program_uuid=None, marketing_slug=None, type=None):  # pylint: disable=redefined-builtin
+    def assert_contract(self, call_args, program_uuid=None, type=None):  # pylint: disable=redefined-builtin
         """Verify that API data retrieval utility is used correctly."""
         args, kwargs = call_args
 
@@ -52,9 +51,8 @@ class TestGetPrograms(CatalogIntegrationMixin, TestCase):
 
         self.assertEqual(kwargs['resource_id'], program_uuid)
 
-        cache_key = '{base}.programs{marketing_slug}{type}'.format(
+        cache_key = '{base}.programs{type}'.format(
             base=self.catalog_integration.CACHE_KEY,
-            marketing_slug='.' + marketing_slug if marketing_slug else '',
             type='.' + type if type else ''
         )
         self.assertEqual(
@@ -92,15 +90,6 @@ class TestGetPrograms(CatalogIntegrationMixin, TestCase):
         data = get_programs(uuid=self.uuid)
 
         self.assert_contract(mock_get_edx_api_data.call_args, program_uuid=self.uuid)
-        self.assertEqual(data, program)
-
-    def test_get_one_program_by_marketing_slug(self, mock_get_edx_api_data):
-        program = ProgramFactory()
-        mock_get_edx_api_data.return_value = program
-
-        data = get_programs(marketing_slug=self.marketing_slug)
-
-        self.assert_contract(mock_get_edx_api_data.call_args, marketing_slug=self.marketing_slug)
         self.assertEqual(data, program)
 
     def test_get_programs_by_type(self, mock_get_edx_api_data):

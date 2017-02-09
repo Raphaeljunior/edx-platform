@@ -25,12 +25,11 @@ def create_catalog_api_client(user, catalog_integration):
     return EdxRestApiClient(catalog_integration.internal_api_url, jwt=jwt)
 
 
-def get_programs(uuid=None, marketing_slug=None, type=None):  # pylint: disable=redefined-builtin
+def get_programs(uuid=None, type=None):  # pylint: disable=redefined-builtin
     """Retrieve marketable programs from the catalog service.
 
     Keyword Arguments:
         uuid (string): UUID identifying a specific program.
-        marketing_slug (string): Marketing slug indentifying a specific program.
         type (string): Filter programs by type (e.g., "MicroMasters" will only return MicroMasters programs).
 
     Returns:
@@ -46,9 +45,8 @@ def get_programs(uuid=None, marketing_slug=None, type=None):  # pylint: disable=
 
         api = create_catalog_api_client(user, catalog_integration)
 
-        cache_key = '{base}.programs{marketing_slug}{type}'.format(
+        cache_key = '{base}.programs{type}'.format(
             base=catalog_integration.CACHE_KEY,
-            marketing_slug='.' + marketing_slug if marketing_slug else '',
             type='.' + type if type else ''
         )
 
@@ -72,19 +70,6 @@ def get_programs(uuid=None, marketing_slug=None, type=None):  # pylint: disable=
         )
     else:
         return []
-
-
-def get_program_type(name):
-    """
-    Retrieve the program type with the given name from the catalog service.
-
-    Arguments:
-        name (string): Name of the program type to retrieve.
-
-    Returns:
-        dict, representing the program type.
-    """
-    return next(program_type for program_type in get_program_types() if program_type['name'] == name)
 
 
 def get_program_type(name):
