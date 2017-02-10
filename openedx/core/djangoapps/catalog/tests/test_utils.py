@@ -137,14 +137,22 @@ class TestGetPrograms(CatalogIntegrationMixin, TestCase):
         self.assertEqual(data, [])
 
 
+def patched_get_programs(uuid=None):
+    """
+    Fake get_program() that mimics the get_programs()
+    behavior depending upon if the uuid was provided or not.
+    """
+    if uuid:
+        return TestGetProgramTypes.catalog_program
+    else:
+        return [TestGetProgramTypes.catalog_program]
+
+
 @skip_unless_lms
 @mock.patch(UTILS_MODULE + '.get_edx_api_data')
 class TestGetProgramTypes(CatalogIntegrationMixin, ModuleStoreTestCase):
     """Tests covering retrieval of program types from the catalog service."""
-    def setUp(self):
-        super(TestGetProgramTypes, self).setUp()
-
-        self.catalog_program = ProgramFactory()
+    catalog_program = ProgramFactory()
 
     def test_get_program_types(self, mock_get_edx_api_data):
         """Verify get_program_types returns the expected list of program types."""
@@ -205,24 +213,22 @@ class TestGetProgramTypes(CatalogIntegrationMixin, ModuleStoreTestCase):
                 actual = get_programs_with_type([type_name_template.format(postfix=0)])
                 self.assertEqual(actual, [programs_with_program_type[0]])
 
+    @mock.patch(UTILS_MODULE + '.get_programs', patched_get_programs)
     def test_get_program_with_type_and_instructors(self, _mock_get_edx_api_data):
         """Verify get_program_with_type_and_instructors returns the expected program data."""
-        program = ProgramFactory()
-        program_type = ProgramTypeFactory(name=program['type'])
+        program_type = ProgramTypeFactory(name=self.catalog_program['type'])
 
-        program_detail = copy.deepcopy(program)
+        program_detail = copy.deepcopy(self.catalog_program)
         program_detail['type'] = program_type
         program_detail['instructors'] = {}
 
-        with mock.patch(UTILS_MODULE + '.get_programs') as patched_get_programs:
-            with mock.patch(UTILS_MODULE + '.get_program_types') as patched_get_program_types:
-                with mock.patch(UTILS_MODULE + '._get_program_instructors') as patched_get_program_instructors:
-                    patched_get_programs.return_value = [program]
-                    patched_get_program_types.return_value = [program_type]
-                    patched_get_program_instructors.return_value = {}
+        with mock.patch(UTILS_MODULE + '.get_program_types') as patched_get_program_types:
+            with mock.patch(UTILS_MODULE + '._get_program_instructors') as patched_get_program_instructors:
+                patched_get_program_types.return_value = [program_type]
+                patched_get_program_instructors.return_value = {}
 
-                    actual = get_program_with_type_and_instructors(program['marketing_slug'])
-                    self.assertEqual(actual, program_detail)
+                actual = get_program_with_type_and_instructors(self.catalog_program['marketing_slug'])
+                self.assertEqual(actual, program_detail)
 
     def test_get_program_instructors(self, _mock_get_edx_api_data):
         """Verify _get_program_instructors returns the expected instructor data."""
