@@ -1,6 +1,6 @@
 """Tests covering utilities for integrating with the catalog service."""
 # pylint: disable=missing-docstring
-import uuid
+from uuid import uuid4
 import copy
 
 from django.contrib.auth import get_user_model
@@ -36,7 +36,7 @@ class TestGetPrograms(CatalogIntegrationMixin, TestCase):
     def setUp(self):
         super(TestGetPrograms, self).setUp()
 
-        self.uuid = str(uuid.uuid4())
+        self.uuid = str(uuid4())
         self.type = 'FooBar'
         self.catalog_integration = self.create_catalog_integration(cache_ttl=1)
 
