@@ -135,7 +135,7 @@ def _get_program_instructors(program):
         return program_instructors_list
 
     module_store = modulestore()
-    for course_run_key in _get_program_course_run_keys(program):
+    for course_run_key in get_program_course_run_keys(program):
         course_descriptor = module_store.get_course(course_run_key)
         if course_descriptor:
             course_instructors = getattr(course_descriptor, 'instructor_info', {})
@@ -150,7 +150,7 @@ def _get_program_instructors(program):
     return program_instructors_list
 
 
-def _get_program_course_run_keys(program):
+def get_program_course_run_keys(program):
     """
     Returns a list of course keys for each course run in the given program.
 
