@@ -254,10 +254,6 @@ FEATURES = {
     # Set to True to change the course sorting behavior by their start dates, latest first.
     'ENABLE_COURSE_SORTING_BY_START_DATE': True,
 
-    # The list of program types that should be displayed on the site.
-    # An empty list means no programs will be displayed on the site.
-    'ENABLED_PROGRAM_TYPES': [],
-
     # Expose Mobile REST API. Note that if you use this, you must also set
     # ENABLE_OAUTH2_PROVIDER to True
     'ENABLE_MOBILE_REST_API': False,

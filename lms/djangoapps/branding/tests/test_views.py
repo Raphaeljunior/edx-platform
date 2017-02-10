@@ -269,9 +269,10 @@ class TestIndex(SiteMixin, TestCase):
         response = self.client.get(reverse("dashboard"))
         self.assertIn(self.site_configuration_other.values["MKTG_URLS"]["ROOT"], response.content)
 
-    @mock.patch.dict(settings.FEATURES, {'ENABLED_PROGRAM_TYPES': ['TestProgramType']})
     def test_index_with_enabled_program_types(self):
         """ Test index view with Enabled Program Types."""
+        self.site_configuration.values.update({'ENABLED_PROGRAM_TYPES': ['TestProgramType']})
+        self.site_configuration.save()
         with mock.patch('student.views.get_programs_with_type') as patched_get_programs_with_type:
             patched_get_programs_with_type.return_value = []
             response = self.client.get(reverse("root"))

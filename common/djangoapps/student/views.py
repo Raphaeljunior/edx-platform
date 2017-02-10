@@ -214,8 +214,7 @@ def index(request, extra_context=None, user=AnonymousUser()):
     # is being added to the context but it's not being used currently in courseware/courses.html. To use this list,
     # you need to create a custom theme that overrides courses.html. The modifications to courses.html to display the
     # programs will be done after the support for edx-pattern-library is added.
-    program_types = configuration_helpers.get_value('ENABLED_PROGRAM_TYPES',
-                                                    settings.FEATURES.get('ENABLED_PROGRAM_TYPES'))
+    program_types = configuration_helpers.get_value('ENABLED_PROGRAM_TYPES')
 
     # Do not add programs to the context if there are no program types enabled for the site.
     if program_types:
