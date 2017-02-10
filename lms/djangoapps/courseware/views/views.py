@@ -1,7 +1,7 @@
 """
 Courseware views functions
 """
-
+import re
 import json
 import logging
 import urllib
@@ -673,25 +673,60 @@ def course_about(request, course_id):
         return render_to_response('courseware/course_about.html', context)
 
 
+# TODO: make this efficient
+def _add_course_info(program, user):
+    for program_course in program['courses']:
+        for course_run in program_course['course_runs']:
+            course = modulestore().get_course(CourseKey.from_string(course_run['key']))
+            course_run.update({
+                'registered': registered_for_course(course, user),
+                'can_enroll': bool(has_access(user, 'enroll', course)),
+                'is_shib_course': uses_shib(course)
+            })
+
+
+def _get_youtube_url_identifier(url):
+    pattern = r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})'
+    patterns = re.search(pattern, url)
+    if patterns:
+        return patterns.groups()[0]
+    return url
+
+
 @ensure_csrf_cookie
 @cache_if_anonymous()
 def program_detail(request, marketing_slug):
     """
     Display the program marketing page.
     """
+    context = {}
     program = get_program_with_type_and_instructors(marketing_slug)
 
     if not program:
         raise Http404
 
-    # TODO: put these keys dynamically
-    for course in program['courses']:
-        course_runs = course['course_runs'][0]
-        course_runs['registered'] = False
-        course_runs['can_enroll'] = True
-        course_runs['is_shib_course'] = False
+    _add_course_info(program, request.user)
+    context['program'] = {
+        'faq': program['faq'],
+        'title': program['title'],
+        'status': program['status'],
+        'courses': program['courses'],
+        'subtitle': program['subtitle'],
+        'overview': program['overview'],
+        'instructors': program['instructors'],
+        'job_outlook_items': program['job_outlook_items'],
+        'weeks_to_complete': program['weeks_to_complete'],
+        'individual_endorsements': program['individual_endorsements'],
+        'expected_learning_items': program['expected_learning_items'],
+        'authoring_organizations': program['authoring_organizations'],
+        'min_hours_effort_per_week': program['min_hours_effort_per_week'],
+        'max_hours_effort_per_week': program['max_hours_effort_per_week'],
+        'type': program.get('type', {}).get('name', ''),
+        'banner_image': program.get('banner_image', {}).get('large', {}).get('url', ''),
+        'video': _get_youtube_url_identifier(program.get('video', {}).get('src'))
+    }
 
-    return render_to_response('courseware/program_detail.html', {'program': program})
+    return render_to_response('courseware/program_detail.html', context)
 
 
 @transaction.non_atomic_requests
