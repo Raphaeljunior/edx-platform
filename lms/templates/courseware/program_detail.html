@@ -193,7 +193,7 @@ from openedx.core.djangolib.markup import HTML, Text
 
 <div id="program-details-page">
         <%
-            banner_url = program['banner_image']['large']['url']
+            banner_url = program['banner_image']
         %>
         <div class="main-banner" style="background: #000 url(${banner_url}) no-repeat center center;">
             <div class="grid-manual">
@@ -201,12 +201,12 @@ from openedx.core.djangolib.markup import HTML, Text
                     <div class="col col-12 md-col-8 lg-col-9">
                         <div class="org-logo">
                             % if program.get('authoring_organizations'):
-                                <img src="${program.get('authoring_organizations')[0].get('logo_image_url')}" alt="${program['authoring_organizations'][0]['name']}">
+                                <img src="${program.get('authoring_organizations')[0]['logo_image_url']}" alt="${program['authoring_organizations'][0]['name']}">
                             % endif
                         </div>
                         <h1 class="banner-title">${program['title']}</h1>
                         <p class="banner-description">${program['subtitle']}</p>
-                        <button type="button" class="btn-brand hidden-sm">Start the ${program['type']['name']} Program</button>
+                        <button type="button" class="btn-brand hidden-sm">Start the ${program['type']} Program</button>
                     </div>
                     <div class="col col-12 md-col-4 lg-col-3" id="course-trailer">
                         <a href="#video-modal" class="media trailer-link visible-sm" rel="leanModal">
@@ -294,12 +294,12 @@ from openedx.core.djangolib.markup import HTML, Text
                                         <div class="profile-item">
                                             <div class="avatar">
                                                 <div class="img-holder">
-                                                    <img src="${static.url(instructor['image'])}" alt="${instructor['name']}"/>
+                                                    <img src="${static.url(instructor.get('image'))}" alt="${instructor.get('name')}"/>
                                                 </div>
                                             </div>
                                             <div class="details">
-                                                <div class="name">${instructor['name']}</div>
-                                                <div class="dept">${instructor['organization']}</div>
+                                                <div class="name">${instructor.get('name')}</div>
+                                                <div class="dept">${instructor.get('organization')}</div>
                                             </div>
                                         </div>
                                     %endfor
@@ -323,14 +323,18 @@ from openedx.core.djangolib.markup import HTML, Text
                     </div>
                     <blockquote class="program-quote visible-sm">
                         <div class="quote">
+                          % if program.get('individual_endorsements'):
                             <span>
                                 ${program['individual_endorsements'][0]['quote']}
                             </span>
-                            <img class="visible-sm pull-left" src="${program['individual_endorsements'][0]['endorser']['profile_image_url']}" width="40" height="40"/>
-                            <span class="writer">
+                            % if program['individual_endorsements'][0].get('endorser'):
+                              <img class="visible-sm pull-left" src="${program['individual_endorsements'][0]['endorser']['profile_image_url']}" width="40" height="40"/>
+                              <span class="writer">
                                 ${program['individual_endorsements'][0]['endorser']['given_name']},
                                 ${program['individual_endorsements'][0]['endorser']['position']['title']}
-                            </span>
+                              </span>
+                            % endif
+                          % endif
                         </div>
                     </blockquote>
                 </div>
@@ -343,12 +347,12 @@ from openedx.core.djangolib.markup import HTML, Text
                             <div class="profile-item profile-item-desktop">
                                 <div class="avatar">
                                     <div class="img-holder">
-                                        <img src="${static.url(instructor['image'])}" alt="${instructor['name']}"/>
+                                        <img src="${static.url(instructor.get('image'))}" alt="${instructor.get('name')}"/>
                                     </div>
                                 </div>
                                 <div class="details">
-                                    <div class="name">${instructor['name']}</div>
-                                    <div class="dept">${instructor['organization']}</div>
+                                    <div class="name">${instructor.get('name')}</div>
+                                    <div class="dept">${instructor.get('organization')}</div>
                                 </div>
                             </div>
                         %endfor
@@ -363,16 +367,22 @@ from openedx.core.djangolib.markup import HTML, Text
                     </div>
                     <blockquote class="program-quote">
                         <div class="quote">
+                          % if program.get('individual_endorsements'):
                             <span class="pull-right hidden-sm">
+                              % if program['individual_endorsements'][0].get('endorser'):
                                 <img src="${program['individual_endorsements'][0]['endorser']['profile_image_url']}" width="90" height="90"/>
+                              % endif
                             </span>
                             <span>
                                ${program['individual_endorsements'][0]['quote']}
                             </span>
                             <span class="writer">
+                              % if program['individual_endorsements'][0].get('endorser'):
                                 ${program['individual_endorsements'][0]['endorser']['given_name']},
                                 ${program['individual_endorsements'][0]['endorser']['position']['title']}
+                              % endif
                             </span>
+                          % endif
                         </div>
                     </blockquote>
                 </div>
@@ -380,9 +390,10 @@ from openedx.core.djangolib.markup import HTML, Text
         </div>
 
         <div class="container courses-in-program" id="courses">
-            <h3 class="hd">Courses in the ${program['type']['name']}</h3>
+            <h3 class="hd">Courses in the ${program['type']}</h3>
             <div class="course-slider-xs">
                 %for course in program['courses']:
+                  % if course.get('course_run'):
                     <div class="course-card">
                         <div class="tbl-view">
                             <div class="tbl-col col-full-sm">
@@ -428,6 +439,7 @@ from openedx.core.djangolib.markup import HTML, Text
 
                         </div>
                     </div>
+                  % endif
                 %endfor
 
             </div>
@@ -437,7 +449,7 @@ from openedx.core.djangolib.markup import HTML, Text
     <section id="video-modal" class="modal modal-custom custom-video-modal">
       <div class="inner-wrapper">
         <iframe title="YouTube Video" width="640" height="360"
-                src="https://www.youtube.com/embed/${program.get('video').get('src')}?showinfo=0"
+                src="https://www.youtube.com/embed/${program['video']}?showinfo=0"
                 frameborder="0" allowfullscreen></iframe>
       </div>
     </section>
