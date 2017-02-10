@@ -160,10 +160,10 @@ def get_program_course_run_keys(program):
     Returns:
         list of CourseKey, for each course run key in the program.
     """
-    keys = []
-    for course in program.get('courses', []):  # pylint: disable=E1101
-        for course_run in course.get('course_runs', []):
-            keys.append(CourseKey.from_string(course_run.get('key')))
+    keys = set()
+    for course in program['courses']:  # pylint: disable=E1101
+        for course_run in course['course_runs']:
+            keys.append(CourseKey.from_string(course_run['key']))
     return keys
 
 
