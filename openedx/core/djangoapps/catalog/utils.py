@@ -130,22 +130,20 @@ def _get_program_instructors(program):
     )
 
     program_instructors_dict = {}
-    program_instructors_list = cache.get(cache_key, [])
-    if program_instructors_list:
-        return program_instructors_list
+    program_instructors_list = cache.get(cache_key)
+    if not program_instructors_list:
+        module_store = modulestore()
+        for course_run_key in get_program_course_run_keys(program):
+            course_descriptor = module_store.get_course(course_run_key)
+            if course_descriptor:
+                course_instructors = getattr(course_descriptor, 'instructor_info', {})
+                # Deduplicate program instructors using instructor name
+                program_instructors_dict.update(
+                    {instructor.get('name'): instructor for instructor in course_instructors.get('instructors', [])}
+                )
 
-    module_store = modulestore()
-    for course_run_key in get_program_course_run_keys(program):
-        course_descriptor = module_store.get_course(course_run_key)
-        if course_descriptor:
-            course_instructors = getattr(course_descriptor, 'instructor_info', {})
-            # Deduplicate program instructors using instructor name
-            program_instructors_dict.update(
-                {instructor.get('name'): instructor for instructor in course_instructors.get('instructors', [])}
-            )
-
-    program_instructors_list = program_instructors_dict.values()
-    cache.set(cache_key, program_instructors_list)
+        program_instructors_list = program_instructors_dict.values()
+        cache.set(cache_key, program_instructors_list)
 
     return program_instructors_list
 
@@ -161,9 +159,9 @@ def get_program_course_run_keys(program):
         list of CourseKey, for each course run key in the program.
     """
     keys = set()
-    for course in program['courses']:  # pylint: disable=E1101
+    for course in program['courses']:
         for course_run in course['course_runs']:
-            keys.append(CourseKey.from_string(course_run['key']))
+            keys.add(CourseKey.from_string(course_run['key']))
     return keys
 
 
@@ -183,21 +181,20 @@ def get_program_with_type_and_instructors(marketing_slug):
     programs = get_programs()
 
     # Find the program using the marketing slug.
-    program = next((program for program in programs if program.get('marketing_slug') == marketing_slug), None)
+    program = next((program for program in programs if program['marketing_slug'] == marketing_slug), None)
     if program:
         # A call to get_programs() with no UUID makes a call
         # to the catalog service's programs list endpoint which
         # uses a serializer that excludes some program data
         # that we need here.
         # Get the program by UUID in order to get the fully serialized program.
-        fully_serialized_program = next(iter(get_programs(uuid=program.get('uuid'))), None)
+        fully_serialized_program = next(iter(get_programs(uuid=program['uuid'])))
 
-        if fully_serialized_program:
-            # Deep copy the program dict here so we are not adding
-            # the type and instructors to the cached object.
-            program_with_type_and_instructors = copy.deepcopy(program)
-            program_with_type_and_instructors['type'] = get_program_type(program['type'])
-            program_with_type_and_instructors['instructors'] = _get_program_instructors(program)
+        # Deep copy the program dict here so we are not adding
+        # the type and instructors to the cached object.
+        program_with_type_and_instructors = copy.deepcopy(fully_serialized_program)
+        program_with_type_and_instructors['type'] = get_program_type(fully_serialized_program['type'])
+        program_with_type_and_instructors['instructors'] = _get_program_instructors(fully_serialized_program)
 
     return program_with_type_and_instructors
 

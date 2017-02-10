@@ -307,7 +307,7 @@ class IndexPageProgramsTests(SiteMixin, ModuleStoreTestCase):
         self.site_configuration.save()
 
         views = [
-            (reverse('dashboard'), 'student.views.get_programs_with_type'),
+            (reverse('root'), 'student.views.get_programs_with_type'),
             (reverse('branding.views.courses'), 'courseware.views.views.get_programs_with_type'),
         ]
         for url, dotted_path in views:
