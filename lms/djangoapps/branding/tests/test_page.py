@@ -295,15 +295,24 @@ class IndexPageProgramsTests(SiteMixin, ModuleStoreTestCase):
     Tests for Programs List in Marketing Pages.
     """
 
-    def setUp(self):
-        super(IndexPageProgramsTests, self).setUp()
-        self.client.login(username=self.user.username, password=self.user_password)
+    @ddt.data(
+        ([], False),
+        ([], True),
+        (['fake_program_type'], False),
+        (['fake_program_type'], True),
+    )
+    @ddt.unpack
+    def test_get_programs_with_type_called(self, program_types, test_with_logged_in_client):
 
-    @ddt.data([], ['fake_program_type'])
-    def test_get_programs_with_type_called(self, program_types):
-        self.site_configuration.values.update({
+        site_configuration_dict = {
             'ENABLED_PROGRAM_TYPES': program_types
-        })
+        }
+
+        if test_with_logged_in_client:
+            self.client.login(username=self.user.username, password=self.user_password)
+            site_configuration_dict['ALWAYS_REDIRECT_HOMEPAGE_TO_DASHBOARD_FOR_AUTHENTICATED_USER'] = False
+
+        self.site_configuration.values.update(site_configuration_dict)
         self.site_configuration.save()
 
         views = [

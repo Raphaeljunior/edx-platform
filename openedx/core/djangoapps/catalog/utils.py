@@ -188,7 +188,7 @@ def get_program_with_type_and_instructors(marketing_slug):
         # uses a serializer that excludes some program data
         # that we need here.
         # Get the program by UUID in order to get the fully serialized program.
-        fully_serialized_program = next(iter(get_programs(uuid=program['uuid'])))
+        fully_serialized_program = get_programs(uuid=program['uuid'])
 
         # Deep copy the program dict here so we are not adding
         # the type and instructors to the cached object.
