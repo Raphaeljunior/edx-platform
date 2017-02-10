@@ -294,11 +294,6 @@ class IndexPageProgramsTests(SiteMixin, ModuleStoreTestCase):
     """
     Tests for Programs List in Marketing Pages.
     """
-
-    def setUp(self):
-        super(IndexPageProgramsTests, self).setUp()
-        self.client.login(username=self.user.username, password=self.user_password)
-
     @ddt.data([], ['fake_program_type'])
     def test_get_programs_with_type_called(self, program_types):
         self.site_configuration.values.update({
@@ -307,7 +302,7 @@ class IndexPageProgramsTests(SiteMixin, ModuleStoreTestCase):
         self.site_configuration.save()
 
         views = [
-            (reverse('dashboard'), 'student.views.get_programs_with_type'),
+            (reverse('root'), 'student.views.get_programs_with_type'),
             (reverse('branding.views.courses'), 'courseware.views.views.get_programs_with_type'),
         ]
         for url, dotted_path in views:
