@@ -393,7 +393,7 @@ from openedx.core.djangolib.markup import HTML, Text
             <h3 class="hd">Courses in the ${program['type']}</h3>
             <div class="course-slider-xs">
                 %for course in program['courses']:
-                  % if course.get('course_run'):
+                  % if course.get('course_runs'):
                     <div class="course-card">
                         <div class="tbl-view">
                             <div class="tbl-col col-full-sm">
